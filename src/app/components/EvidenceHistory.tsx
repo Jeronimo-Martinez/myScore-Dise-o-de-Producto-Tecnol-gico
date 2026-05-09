@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { CheckCircle2, Clock, XCircle, FileText, Receipt, CreditCard, Building2 } from "lucide-react";
+import { CheckCircle2, Clock, XCircle, FileText, Receipt, CreditCard, Building2, Inbox } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -14,110 +14,17 @@ interface Evidence {
   status: "approved" | "pending" | "rejected";
 }
 
-const mockEvidences: Evidence[] = [
-  {
-    id: "1",
-    type: "utility",
-    description: "Recibo de luz - Abril 2026",
-    amount: 85000,
-    date: "2026-05-05",
-    status: "approved"
-  },
-  {
-    id: "2",
-    type: "supplier",
-    description: "Compra de telas - Proveedor TextilCo",
-    amount: 350000,
-    date: "2026-05-03",
-    status: "approved"
-  },
-  {
-    id: "3",
-    type: "sales",
-    description: "Ventas semanales - Semana 18",
-    amount: 450000,
-    date: "2026-05-01",
-    status: "pending"
-  },
-  {
-    id: "4",
-    type: "utility",
-    description: "Recibo de agua - Abril 2026",
-    amount: 45000,
-    date: "2026-04-28",
-    status: "approved"
-  },
-  {
-    id: "5",
-    type: "bank",
-    description: "Transferencia recibida - Cliente",
-    amount: 120000,
-    date: "2026-04-25",
-    status: "pending"
-  },
-  {
-    id: "6",
-    type: "supplier",
-    description: "Materia prima - Distribuidor ABC",
-    amount: 280000,
-    date: "2026-04-20",
-    status: "approved"
-  },
-  {
-    id: "7",
-    type: "utility",
-    description: "Internet - Abril 2026",
-    amount: 65000,
-    date: "2026-04-18",
-    status: "approved"
-  },
-  {
-    id: "8",
-    type: "sales",
-    description: "Ventas semanales - Semana 16",
-    amount: 380000,
-    date: "2026-04-15",
-    status: "approved"
-  },
-  {
-    id: "9",
-    type: "supplier",
-    description: "Insumos de producción",
-    amount: 195000,
-    date: "2026-04-12",
-    status: "pending"
-  },
-  {
-    id: "10",
-    type: "bank",
-    description: "Pago recibido - Servicio prestado",
-    amount: 250000,
-    date: "2026-04-10",
-    status: "approved"
-  },
-  {
-    id: "11",
-    type: "utility",
-    description: "Recibo de gas - Marzo 2026",
-    amount: 38000,
-    date: "2026-04-05",
-    status: "approved"
-  },
-  {
-    id: "12",
-    type: "sales",
-    description: "Ventas semanales - Semana 14",
-    amount: 420000,
-    date: "2026-04-01",
-    status: "pending"
-  }
-];
+interface EvidenceHistoryProps {
+  evidences: Evidence[];
+}
 
 const typeConfig = {
   utility: { label: "Servicio público", icon: Receipt, color: "bg-blue-100 text-blue-800" },
   supplier: { label: "Proveedor", icon: FileText, color: "bg-green-100 text-green-800" },
   bank: { label: "Bancaria", icon: CreditCard, color: "bg-purple-100 text-purple-800" },
-  sales: { label: "Ventas", icon: Building2, color: "bg-orange-100 text-orange-800" }
+  sales: { label: "Ventas", icon: Building2, color: "bg-orange-100 text-orange-800" },
+  rent: { label: "Arriendo", icon: Building2, color: "bg-indigo-100 text-indigo-800" },
+  other: { label: "Otro", icon: FileText, color: "bg-gray-100 text-gray-800" }
 };
 
 const statusConfig = {
@@ -126,7 +33,7 @@ const statusConfig = {
   rejected: { label: "Rechazada", icon: XCircle, color: "bg-red-100 text-red-800 border-red-200" }
 };
 
-export function EvidenceHistory() {
+export function EvidenceHistory({ evidences }: EvidenceHistoryProps) {
   const formatCurrency = (amount: number) => {
     return `$${amount.toLocaleString('es-CO')}`;
   };
@@ -135,9 +42,23 @@ export function EvidenceHistory() {
     return format(new Date(dateString), "dd MMM yyyy", { locale: es });
   };
 
-  const totalAmount = mockEvidences
+  const totalAmount = evidences
     .filter(e => e.status === "approved")
     .reduce((sum, e) => sum + e.amount, 0);
+
+  if (evidences.length === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+          <Inbox className="h-12 w-12 text-gray-400 mb-4" aria-hidden="true" />
+          <h3 className="font-semibold text-lg mb-2">No hay evidencias aún</h3>
+          <p className="text-gray-600 max-w-md">
+            Comienza a subir tus evidencias para construir tu historial crediticio.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -167,7 +88,7 @@ export function EvidenceHistory() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">
-              {mockEvidences.length}
+              {evidences.length}
             </div>
             <p className="text-xs text-gray-500 mt-1">
               Registradas en el sistema
@@ -183,10 +104,12 @@ export function EvidenceHistory() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
-              {Math.round((mockEvidences.filter(e => e.status === "approved").length / mockEvidences.length) * 100)}%
+              {evidences.length > 0
+                ? Math.round((evidences.filter(e => e.status === "approved").length / evidences.length) * 100)
+                : 0}%
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Muy buen desempeño
+              {evidences.filter(e => e.status === "approved").length > 0 ? "Muy buen desempeño" : "Comienza a subir evidencias"}
             </p>
           </CardContent>
         </Card>
@@ -203,7 +126,7 @@ export function EvidenceHistory() {
         <CardContent>
           {/* Mobile View */}
           <div className="md:hidden space-y-4">
-            {mockEvidences.map((evidence) => {
+            {evidences.map((evidence) => {
               const TypeIcon = typeConfig[evidence.type as keyof typeof typeConfig].icon;
               const StatusIcon = statusConfig[evidence.status].icon;
 
@@ -247,7 +170,7 @@ export function EvidenceHistory() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockEvidences.map((evidence) => {
+                {evidences.map((evidence) => {
                   const TypeIcon = typeConfig[evidence.type as keyof typeof typeConfig].icon;
                   const StatusIcon = statusConfig[evidence.status].icon;
 

@@ -8,7 +8,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Upload, FileText, CheckCircle2, X } from "lucide-react";
 import { Alert, AlertDescription } from "./ui/alert";
 
-export function UploadEvidence() {
+interface Evidence {
+  type: string;
+  description: string;
+  amount: number;
+}
+
+interface UploadEvidenceProps {
+  onAddEvidence: (evidence: Evidence) => void;
+}
+
+export function UploadEvidence({ onAddEvidence }: UploadEvidenceProps) {
   const [evidenceType, setEvidenceType] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
@@ -28,7 +38,14 @@ export function UploadEvidence() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Simulate upload
+    // Add evidence to user's history
+    onAddEvidence({
+      type: evidenceType,
+      description: description || `${evidenceType} - ${new Date().toLocaleDateString('es-CO')}`,
+      amount: parseFloat(amount),
+    });
+
+    // Show success message
     setShowSuccess(true);
 
     // Reset form

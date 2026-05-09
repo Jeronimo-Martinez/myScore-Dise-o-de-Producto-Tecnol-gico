@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
-import { TrendingUp, CheckCircle2, Building2, MapPin } from "lucide-react";
+import { TrendingUp, CheckCircle2, Building2, MapPin, Phone, Mail, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -13,6 +13,13 @@ import {
 } from "./ui/select";
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 
 interface InvestorsDirectoryProps {
   onLogout: () => void;
@@ -26,6 +33,9 @@ interface Entrepreneur {
   score: number;
   verified: boolean;
   evidences: number;
+  contactEmail: string;
+  contactPhone: string;
+  contactPerson: string;
 }
 
 export function InvestorsDirectory({ onLogout }: InvestorsDirectoryProps) {
@@ -33,6 +43,7 @@ export function InvestorsDirectory({ onLogout }: InvestorsDirectoryProps) {
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [minScore, setMinScore] = useState<string>("0");
   const [onlyVerified, setOnlyVerified] = useState(false);
+  const [selectedEntrepreneur, setSelectedEntrepreneur] = useState<Entrepreneur | null>(null);
 
   const entrepreneurs: Entrepreneur[] = [
     {
@@ -42,7 +53,10 @@ export function InvestorsDirectory({ onLogout }: InvestorsDirectoryProps) {
       city: "Medellín",
       score: 45,
       verified: true,
-      evidences: 8
+      evidences: 8,
+      contactEmail: "contacto@elprogreso.com",
+      contactPhone: "3001234567",
+      contactPerson: "María González"
     },
     {
       id: 2,
@@ -51,7 +65,10 @@ export function InvestorsDirectory({ onLogout }: InvestorsDirectoryProps) {
       city: "Envigado",
       score: 62,
       verified: true,
-      evidences: 15
+      evidences: 15,
+      contactEmail: "info@laesquina.com",
+      contactPhone: "3009876543",
+      contactPerson: "Carlos Ramírez"
     },
     {
       id: 3,
@@ -60,7 +77,10 @@ export function InvestorsDirectory({ onLogout }: InvestorsDirectoryProps) {
       city: "Itagüí",
       score: 78,
       verified: true,
-      evidences: 22
+      evidences: 22,
+      contactEmail: "ventas@carpinteria.com",
+      contactPhone: "3005551234",
+      contactPerson: "Jorge Martínez"
     },
     {
       id: 4,
@@ -69,7 +89,10 @@ export function InvestorsDirectory({ onLogout }: InvestorsDirectoryProps) {
       city: "Medellín",
       score: 38,
       verified: false,
-      evidences: 6
+      evidences: 6,
+      contactEmail: "hola@devweb.co",
+      contactPhone: "3007778899",
+      contactPerson: "Andrea López"
     },
     {
       id: 5,
@@ -78,7 +101,10 @@ export function InvestorsDirectory({ onLogout }: InvestorsDirectoryProps) {
       city: "Bello",
       score: 52,
       verified: true,
-      evidences: 11
+      evidences: 11,
+      contactEmail: "panaderia@artesanal.com",
+      contactPhone: "3004445566",
+      contactPerson: "Luis Hernández"
     },
     {
       id: 6,
@@ -87,7 +113,10 @@ export function InvestorsDirectory({ onLogout }: InvestorsDirectoryProps) {
       city: "Sabaneta",
       score: 67,
       verified: true,
-      evidences: 18
+      evidences: 18,
+      contactEmail: "consultas@empresa.com",
+      contactPhone: "3002223344",
+      contactPerson: "Patricia Silva"
     }
   ];
 
@@ -230,7 +259,11 @@ export function InvestorsDirectory({ onLogout }: InvestorsDirectoryProps) {
                   <strong>{entrepreneur.evidences} evidencias verificadas</strong>
                 </div>
 
-                <Button variant="outline" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setSelectedEntrepreneur(entrepreneur)}
+                >
                   Me interesa
                 </Button>
               </CardContent>
@@ -238,6 +271,78 @@ export function InvestorsDirectory({ onLogout }: InvestorsDirectoryProps) {
           ))}
         </div>
       </div>
+
+      {/* Contact Dialog */}
+      <Dialog open={!!selectedEntrepreneur} onOpenChange={() => setSelectedEntrepreneur(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Información de contacto</DialogTitle>
+            <DialogDescription>
+              Puedes contactar directamente a este emprendimiento
+            </DialogDescription>
+          </DialogHeader>
+          {selectedEntrepreneur && (
+            <div className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <h4 className="font-semibold text-lg">{selectedEntrepreneur.name}</h4>
+                <p className="text-sm text-gray-600">
+                  {selectedEntrepreneur.sector} • {selectedEntrepreneur.city}
+                </p>
+              </div>
+
+              <div className="space-y-3 border-t pt-4">
+                <div className="flex items-start gap-3">
+                  <Mail className="h-5 w-5 text-blue-600 mt-0.5" aria-hidden="true" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Correo electrónico</p>
+                    <a
+                      href={`mailto:${selectedEntrepreneur.contactEmail}`}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      {selectedEntrepreneur.contactEmail}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Phone className="h-5 w-5 text-green-600 mt-0.5" aria-hidden="true" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Teléfono</p>
+                    <a
+                      href={`tel:${selectedEntrepreneur.contactPhone}`}
+                      className="text-sm text-green-600 hover:underline"
+                    >
+                      {selectedEntrepreneur.contactPhone}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Building2 className="h-5 w-5 text-purple-600 mt-0.5" aria-hidden="true" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Persona de contacto</p>
+                    <p className="text-sm text-gray-600">{selectedEntrepreneur.contactPerson}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+                <p className="text-xs text-blue-800">
+                  <strong>Nota:</strong> Al contactar, menciona que encontraste este emprendimiento
+                  a través del directorio de myScore.
+                </p>
+              </div>
+
+              <Button
+                className="w-full"
+                onClick={() => setSelectedEntrepreneur(null)}
+              >
+                Cerrar
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

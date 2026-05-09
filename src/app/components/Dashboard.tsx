@@ -19,6 +19,15 @@ import { UploadEvidence } from "./UploadEvidence";
 import { EvidenceHistory } from "./EvidenceHistory";
 import { InvestorsTab } from "./InvestorsTab";
 
+interface Evidence {
+  id: string;
+  type: string;
+  description: string;
+  amount: number;
+  date: string;
+  status: "approved" | "pending" | "rejected";
+}
+
 interface User {
   username: string;
   fullName: string;
@@ -26,6 +35,7 @@ interface User {
   location?: string;
   sector?: string;
   hasCompletedProfile: boolean;
+  evidences: Evidence[];
   stats: {
     evidencesSubmitted: number;
     evidencesApproved: number;
@@ -37,9 +47,10 @@ interface User {
 interface DashboardProps {
   onLogout: () => void;
   user: User;
+  onAddEvidence: (evidence: Omit<Evidence, "id" | "date" | "status">) => void;
 }
 
-export function Dashboard({ onLogout, user }: DashboardProps) {
+export function Dashboard({ onLogout, user, onAddEvidence }: DashboardProps) {
   const [activeTab, setActiveTab] = useState("overview");
 
   const stats = user.stats;
@@ -221,7 +232,7 @@ export function Dashboard({ onLogout, user }: DashboardProps) {
           {/* Upload Tab */}
           <TabsContent value="upload">
             {user.hasCompletedProfile ? (
-              <UploadEvidence />
+              <UploadEvidence onAddEvidence={onAddEvidence} />
             ) : (
               <Card className="bg-gray-50">
                 <CardContent className="flex flex-col items-center justify-center py-12 text-center">
@@ -237,7 +248,7 @@ export function Dashboard({ onLogout, user }: DashboardProps) {
 
           {/* History Tab */}
           <TabsContent value="history">
-            <EvidenceHistory />
+            <EvidenceHistory evidences={user.evidences} />
           </TabsContent>
 
           {/* Investors Tab */}
